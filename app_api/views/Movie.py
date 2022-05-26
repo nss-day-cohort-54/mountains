@@ -10,6 +10,9 @@ class MovieView(ViewSet):
 
     def list(self, request):
         movies = Movie.objects.all()
+        genre = request.query_params.get("genre", None)
+        if genre is not None:
+                movies = movies.filter(genre_id=genre)        
         serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data)
 
@@ -27,11 +30,11 @@ class MovieView(ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
         
     def update(self, request, pk):
-        pass
-
-    def destroy(self, request, pk):
-        pass
-
+        movie = Movie.objects.get(pk=pk)
+        serializer = CreateMovieSerializer(movie, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 class MovieSerializer(serializers.ModelSerializer):
 
