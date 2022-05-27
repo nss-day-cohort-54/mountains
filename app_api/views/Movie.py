@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework import serializers
 from app_api.models import Movie, Genre
-
+from rest_framework.decorators import action
 
 class MovieView(ViewSet):
 
@@ -36,6 +36,15 @@ class MovieView(ViewSet):
         serializer.save()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+    # movies/pk/my_movies detail=TruFalse  # movies/my_movies detail=False
+    @action(methods=['get'], detail=False)
+    def my_movies(self, request):
+        movie=Movie.objects.filter(user=request.auth.user)
+        serializer = MovieSerializer(movie, many=True)
+        return Response(serializer.data)
+  
+       
+    
 class MovieSerializer(serializers.ModelSerializer):
 
     class Meta:
